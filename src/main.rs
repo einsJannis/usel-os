@@ -2,6 +2,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+use crate::vga::{Writer, ColorInformation, Color};
+
+mod vga;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -17,13 +20,7 @@ pub extern "C" fn _start() -> ! {
 fn halt() -> ! { loop {} }
 
 fn print_hello_world() {
-    let hello_world: &[u8] = b"Hello World!";
-    let vga_buffer = 0xb8000 as *mut u8;
-    for (i, &byte) in hello_world.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
+    let writer: Writer<25, 80> = Writer::new(ColorInformation::new(Color::White, Color::Black));
+    writer.writeln("Hello world!")
 }
 
